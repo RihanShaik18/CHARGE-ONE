@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVCharge - Unified EV Charging</title>
+    <link rel="stylesheet" href="INDEX.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="ev_logo.png" alt="EVCharge logo" class="ev-img">
+            EV<span>Charge</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#chargers">Chargers</a>
+            <a href="#history">History</a>
+        </div>
+
+        <div class="nav-right">
+            <span id="walletChip" class="wallet-chip" hidden></span>
+            <button class="profile-btn" onclick="openAccount()" aria-label="Account">👤</button>
+        </div>
+    </nav>
+
+
+    <!-- HERO -->
+    <section id="home" class="hero">
+
+        <div class="hero-text">
+            <p class="tag">⚡ SMART EV CHARGING</p>
+
+            <h1>
+                Charge smarter.<br>
+                <span>Drive further.</span>
+            </h1>
+
+            <p class="hero-description">
+                Discover, reserve and manage EV charging stations
+                from one unified platform.
+            </p>
+
+            <button class="primary-btn" onclick="scrollToChargers()">
+                Find Chargers →
+            </button>
+        </div>
+
+        <div class="hero-card">
+
+            <div class="battery-top">
+                <span>Your EV</span>
+                <span id="heroBattery">42%</span>
+            </div>
+
+            <div class="battery">
+                <div class="battery-level" id="heroLevel"></div>
+            </div>
+
+            <div class="battery-info">
+                <div>
+                    <small>Range</small>
+                    <strong id="heroRange">168 km</strong>
+                </div>
+
+                <div>
+                    <small>Estimated</small>
+                    <strong id="heroEstimate">₹420</strong>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SEARCH -->
+    <section class="search-section">
+
+        <div class="search-box">
+            <span>📍</span>
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search location, station or network..."
+                onkeyup="searchChargers()"
+            >
+            <button onclick="loadChargers()">Search</button>
+            <button class="nearby-btn" onclick="findNearbyStations()">Find near by chargers</button>
+        </div>
+
+    </section>
+
+
+    <!-- STATS -->
+    <section class="stats">
+
+        <div class="stat-card">
+            <span>⚡</span>
+            <div>
+                <strong id="statTotal">-</strong>
+                <p>Nearby Chargers</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <span>🟢</span>
+            <div>
+                <strong id="statAvailable">-</strong>
+                <p>Available Now</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <span>🚗</span>
+            <div>
+                <strong id="statFastest">-</strong>
+                <p>Fastest Charger</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <span>💰</span>
+            <div>
+                <strong id="statPrice">-</strong>
+                <p>Lowest Price</p>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- CHARGERS (cards are created by script.js from the API) -->
+    <section id="chargers" class="chargers-section">
+
+        <div class="section-heading">
+            <div>
+                <p class="tag">NEARBY</p>
+                <h2>Find a charging station</h2>
+            </div>
+
+            <select id="filterSelect" onchange="filterChargers()">
+                <option value="all">All Chargers</option>
+                <option value="available">Available</option>
+                <option value="fast">Fast Charging</option>
+            </select>
+        </div>
+
+        <div id="chargerGrid" class="charger-grid">
+            <p class="empty">Loading chargers...</p>
+        </div>
+
+    </section>
+
+
+    <!-- RECOMMENDATION -->
+    <section class="recommendation">
+
+        <div class="recommendation-content">
+
+            <div>
+                <p class="tag">🤖 SMART RECOMMENDATION</p>
+
+                <h2>We found a charger for you.</h2>
+
+                <p id="recText">
+                    Comparing distance, charging speed, price and
+                    availability across all networks...
+                </p>
+            </div>
+
+            <div class="recommendation-score">
+                <strong id="recScore">-</strong>
+                <span>Match</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- HISTORY -->
+    <section id="history" class="history-section">
+
+        <div class="section-heading">
+            <div>
+                <p class="tag">ACTIVITY</p>
+                <h2>Recent charging</h2>
+            </div>
+        </div>
+
+        <div class="history-table">
+
+            <div class="history-row history-header">
+                <span>Station</span>
+                <span>Date</span>
+                <span>Energy</span>
+                <span>Amount</span>
+            </div>
+
+            <div id="historyBody">
+                <div class="history-empty">Log in to see your charging history.</div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CHARGER MODAL -->
+    <div id="chargerModal" class="modal">
+
+        <div class="modal-content">
+
+            <button class="close-btn" onclick="closeModal()">×</button>
+
+            <div class="modal-icon">⚡</div>
+
+            <h2 id="modalName">Charger</h2>
+
+            <p id="modalLocation"></p>
+
+            <div class="modal-details">
+
+                <div>
+                    <span>Power</span>
+                    <strong id="modalPower">-</strong>
+                </div>
+
+                <div>
+                    <span>Price</span>
+                    <strong id="modalPrice">-</strong>
+                </div>
+
+                <div>
+                    <span>Available Ports</span>
+                    <strong id="modalPorts">-</strong>
+                </div>
+
+            </div>
+
+            <p id="modalConnectors" class="modal-sub"></p>
+
+            <button
+                id="reserveBtn"
+                class="primary-btn full-btn"
+                onclick="reserveCharger()"
+            >
+                Reserve & Start Charging
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHARGING MODAL -->
+    <div id="chargingModal" class="modal">
+
+        <div class="modal-content charging-modal">
+
+            <button class="close-btn" onclick="closeCharging()">×</button>
+
+            <p class="tag">⚡ LIVE SESSION</p>
+
+            <h2>Charging in progress</h2>
+
+            <p id="sessionStation" class="modal-sub"></p>
+
+            <!-- BATTERY RING (SVG) -->
+            <div class="charging-circle">
+
+                <svg viewBox="0 0 120 120">
+                    <circle class="ring-track" cx="60" cy="60" r="52"></circle>
+                    <circle class="ring-progress" id="ringProgress" cx="60" cy="60" r="52"></circle>
+                </svg>
+
+                <div class="ring-label">
+                    <strong id="batteryPercent">42%</strong>
+                    <span>Battery</span>
+                </div>
+
+            </div>
+
+            <div class="charging-data">
+
+                <div>
+                    <span>Power</span>
+                    <strong id="powerValue">-</strong>
+                </div>
+
+                <div>
+                    <span>Energy</span>
+                    <strong id="energyValue">0.0 kWh</strong>
+                </div>
+
+                <div>
+                    <span>Cost</span>
+                    <strong id="costValue">₹0</strong>
+                </div>
+
+            </div>
+
+            <button
+                id="stopBtn"
+                class="primary-btn full-btn"
+                onclick="stopCharging()"
+            >
+                Stop Charging
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACCOUNT MODAL -->
+    <div id="accountModal" class="modal">
+
+        <div class="modal-content">
+
+            <button class="close-btn" onclick="closeAccount()">×</button>
+
+            <!-- logged out -->
+            <div id="authView">
+                <div class="modal-icon">👤</div>
+                <h2>One account, every network</h2>
+                <p class="modal-sub">Log in to reserve chargers and pay from a single wallet.</p>
+
+                <div class="auth-tabs">
+                    <button id="tabLogin" class="active" onclick="switchAuth('login')">Log in</button>
+                    <button id="tabRegister" onclick="switchAuth('register')">Sign up</button>
+                </div>
+
+                <input id="authName" type="text" placeholder="Full name" autocomplete="name" hidden>
+                <input id="authEmail" type="email" placeholder="Email" autocomplete="email">
+                <input id="authPassword" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password">
+
+                <p id="authError" class="form-error"></p>
+
+                <button id="authSubmit" class="primary-btn full-btn" onclick="submitAuth()">Log in</button>
+            </div>
+
+            <!-- logged in -->
+            <div id="accountView" hidden>
+                <div class="modal-icon">👤</div>
+                <h2 id="accName"></h2>
+                <p id="accEmail" class="modal-sub"></p>
+
+                <div class="wallet-box">
+                    <span>Wallet balance</span>
+                    <strong id="accBalance">₹0</strong>
+                </div>
+
+                <p class="modal-sub">Add money once and pay at any charging network.</p>
+
+                <div class="topup-row">
+                    <button onclick="topUp(200)">+ ₹200</button>
+                    <button onclick="topUp(500)">+ ₹500</button>
+                    <button onclick="topUp(1000)">+ ₹1000</button>
+                </div>
+
+                <h3 class="small-heading">Recent activity</h3>
+                <div id="txnList" class="txn-list"></div>
+
+                <button class="secondary-btn full-btn" onclick="logout()">Log out</button>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="toast" class="toast"></div>
+
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="logo">⚡ EV<span>Charge</span></div>
+        <p>One platform. Every charge.</p>
+    </footer>
+
+
+    <script src="INDEX.js"></script>
+
+</body>
+</html>
